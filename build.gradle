@@ -1,75 +1,20 @@
 buildscript {
     repositories {
         mavenCentral()
-    }    
+    }
     dependencies {
         classpath "org.hibernate:hibernate-gradle-plugin:5.4.3.Final"
     }
 }
 
 plugins {
-    id "net.ltgt.apt-eclipse" version "0.21"
-    id "com.github.johnrengelman.shadow" version "5.0.0"
     id "application"
+    id "groovy"
+    id "net.ltgt.apt-eclipse" version "0.21"
+    id "com.github.johnrengelman.shadow" version "5.2.0"
 }
 
 apply plugin: 'org.hibernate.orm'
-
-version "0.1"
-group "example.jpa"
-
-repositories {
-    maven { url "https://jcenter.bintray.com" }
-}
-
-configurations {
-    // for dependencies that are needed for development only
-    developmentOnly 
-}
-
-dependencies {
-    implementation platform("io.micronaut:micronaut-bom:$micronautVersion")     
-    annotationProcessor platform("io.micronaut:micronaut-bom:$micronautVersion")
-    testAnnotationProcessor platform("io.micronaut:micronaut-bom:$micronautVersion")
-        
-    annotationProcessor "io.micronaut:micronaut-inject-java"
-    annotationProcessor "io.micronaut:micronaut-graal"
-    annotationProcessor "io.micronaut:micronaut-validation"
-    annotationProcessor "io.micronaut.data:micronaut-data-processor:$micronautDataVersion"
-
-    compileOnly "com.oracle.substratevm:svm"
-    implementation "io.micronaut:micronaut-inject"
-    implementation "io.micronaut:micronaut-validation"
-    implementation "io.micronaut:micronaut-runtime"
-    implementation "io.micronaut:micronaut-http-client"
-    implementation "io.micronaut:micronaut-http-server-netty"
-    implementation "io.micronaut.data:micronaut-data-hibernate-jpa:$micronautDataVersion"
-    implementation "io.micronaut.configuration:micronaut-hibernate-jpa:2.0.0.M1"
-    runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
-    runtimeOnly "com.h2database:h2"
-    runtimeOnly "io.micronaut.configuration:micronaut-jdbc-hikari:2.0.0.M1"
-
-    testAnnotationProcessor "io.micronaut:micronaut-inject-java"
-    testImplementation "org.junit.jupiter:junit-jupiter-api"
-    testImplementation "io.micronaut.test:micronaut-test-junit5"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"    
-}
-
-test.classpath += configurations.developmentOnly
-
-mainClassName = "example.Application"
-// use JUnit 5 platform
-test {
-    useJUnitPlatform()
-}
-tasks.withType(JavaCompile){
-    options.encoding = "UTF-8"
-    options.compilerArgs.add('-parameters')
-}
-
-shadowJar {
-    mergeServiceFiles()
-}
 
 hibernate {
     enhance {
@@ -77,6 +22,85 @@ hibernate {
         enableDirtyTracking = true
         enableAssociationManagement = true
     }
+}
+
+version "0.1"
+group "${group}"
+
+repositories {
+    mavenCentral()
+    maven { url "https://jcenter.bintray.com" }
+}
+
+configurations {
+    // for dependencies that are needed for development only
+    developmentOnly
+}
+
+dependencies {
+    implementation platform("io.micronaut:micronaut-bom:$micronautVersion")
+    annotationProcessor platform("io.micronaut:micronaut-bom:$micronautVersion")
+    testAnnotationProcessor platform("io.micronaut:micronaut-bom:$micronautVersion")
+
+    annotationProcessor "io.micronaut:micronaut-validation"
+    annotationProcessor "io.micronaut.data:micronaut-data-processor:$micronautDataVersion"
+
+    // Java
+//    implementation "io.micronaut:micronaut-runtime"
+//    implementation "io.micronaut:micronaut-inject"
+//    annotationProcessor "io.micronaut:micronaut-inject-java"
+//    annotationProcessor "io.micronaut:micronaut-graal"
+
+    // Groovy
+    compileOnly platform("io.micronaut:micronaut-bom:$micronautVersion")
+    compileOnly "io.micronaut:micronaut-inject-groovy"
+    implementation "io.micronaut:micronaut-runtime-groovy"
+    compileOnly "io.micronaut.data:micronaut-data-processor:$micronautDataVersion"
+    compileOnly "io.micronaut:micronaut-validation"
+
+    implementation "io.micronaut:micronaut-http-client"
+    implementation "io.micronaut:micronaut-http-server-netty"
+    implementation 'io.micronaut.configuration:micronaut-hibernate-validator'
+    implementation "io.micronaut.data:micronaut-data-hibernate-jpa:$micronautDataVersion"
+//    implementation "io.micronaut.configuration:micronaut-hibernate-jpa:2.2.6"
+
+    runtimeOnly "ch.qos.logback:logback-classic:1.2.3"
+    runtimeOnly "com.h2database:h2"
+    runtimeOnly "io.micronaut.configuration:micronaut-jdbc-hikari:2.2.6"
+
+//    testAnnotationProcessor "io.micronaut:micronaut-inject-java"
+//    testImplementation "org.junit.jupiter:junit-jupiter-api"
+//    testImplementation "io.micronaut.test:micronaut-test-junit5"
+//    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+
+    testCompileOnly platform("io.micronaut:micronaut-bom:$micronautVersion")
+    testImplementation platform("io.micronaut:micronaut-bom:$micronautVersion")
+    testImplementation("org.spockframework:spock-core") {
+        exclude group: "org.codehaus.groovy", module: "groovy-all"
+    }
+    testImplementation "io.micronaut:micronaut-inject-groovy"
+    testImplementation "io.micronaut.test:micronaut-test-spock"
+    testImplementation "io.micronaut.test:micronaut-test-junit5"
+    testImplementation "org.junit.jupiter:junit-jupiter-engine"
+}
+
+test.classpath += configurations.developmentOnly
+
+mainClassName = "example.Application"
+// use JUnit 5 platform
+//test {
+//    useJUnitPlatform()
+//}
+tasks.withType(JavaExec) {
+    classpath += configurations.developmentOnly
+    jvmArgs('-noverify', '-XX:TieredStopAtLevel=1', '-Dcom.sun.management.jmxremote')
+}
+tasks.withType(GroovyCompile) {
+    groovyOptions.forkOptions.jvmArgs.add('-Dgroovy.parameters=true')
+}
+
+shadowJar {
+    mergeServiceFiles()
 }
 
 run.classpath += configurations.developmentOnly
