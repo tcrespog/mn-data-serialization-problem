@@ -23,4 +23,7 @@ class MyEntity {
     @Type(type = 'example.util.H8ListToJsonType')
     List<String> data
 
+    @Type(type = 'example.util.H8UserOptionsType')
+    UserOptions options
+
 }

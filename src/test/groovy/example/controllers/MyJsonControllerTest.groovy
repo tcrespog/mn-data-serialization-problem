@@ -3,6 +3,7 @@ package example.controllers
 import javax.inject.Inject
 
 import example.domain.MyEntity
+import example.domain.UserOptions
 import example.repositories.MyEntityRepository
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.client.RxHttpClient
@@ -25,7 +26,8 @@ class MyJsonControllerTest extends Specification {
 
     void 'test get entity class'() {
         given:
-        def instance = new MyEntity(data:['foo','bar'])
+        def opts = new UserOptions(token: 'xyz', maxRuns: 1, other: [foo:1, baf:2])
+        def instance = new MyEntity(data:['foo','bar'], options: opts)
 
         when:
         repo.save(instance)
@@ -39,6 +41,7 @@ class MyJsonControllerTest extends Specification {
 
         then:
         fromControllerInstance.data == ['foo','bar']
+        fromControllerInstance.options == opts
     }
 
 }
