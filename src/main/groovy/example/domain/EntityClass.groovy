@@ -1,13 +1,16 @@
 package example.domain
 
+import javax.persistence.Convert
+import javax.persistence.Entity
+import javax.persistence.GeneratedValue
+import javax.persistence.Id
+
 import example.util.ListToJsonConverter
 import example.util.MapToJsonConverter
-
-import javax.persistence.*
-import java.util.List
-import java.util.Map
+import groovy.transform.CompileStatic
 
 @Entity
+@CompileStatic
 class EntityClass {
 
     @Id

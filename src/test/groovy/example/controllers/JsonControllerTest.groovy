@@ -1,16 +1,16 @@
 package example.controllers
 
+import javax.inject.Inject
+
 import example.domain.EntityClass
+import example.domain.MyEntity
 import example.domain.RegularClass
 import example.repositories.EntityClassRepository
-import io.micronaut.core.util.CollectionUtils
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.client.RxHttpClient
 import io.micronaut.http.client.annotation.Client
 import io.micronaut.test.annotation.MicronautTest
 import spock.lang.Specification
-
-import javax.inject.Inject
 
 @MicronautTest
 class JsonControllerTest extends Specification {
@@ -59,4 +59,14 @@ class JsonControllerTest extends Specification {
         instance.map == [string: 'hello', number: 1, boolean: true]
     }
 
+    void 'test my entity'() {
+        given:
+        final record = new MyEntity(data:'foo')
+
+        final instance = client.retrieve(HttpRequest.GET("/my/entity/123"), MyEntity).blockingFirst()
+
+        expect:
+        instance.numbers == [1, 2, 3]
+        instance.map == [string: 'hello', number: 1, boolean: true]
+    }
 }
