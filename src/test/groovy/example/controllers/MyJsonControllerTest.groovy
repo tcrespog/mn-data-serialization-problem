@@ -27,7 +27,8 @@ class MyJsonControllerTest extends Specification {
     void 'test get entity class'() {
         given:
         def opts = new UserOptions(token: 'xyz', maxRuns: 1, other: [foo:1, baf:2])
-        def instance = new MyEntity(data:['foo','bar'], options: opts)
+        def params = new HashMap(x:1, y:2)
+        def instance = new MyEntity(data:['foo','bar'], options: opts, params: params)
 
         when:
         repo.save(instance)
@@ -42,6 +43,7 @@ class MyJsonControllerTest extends Specification {
         then:
         fromControllerInstance.data == ['foo','bar']
         fromControllerInstance.options == opts
+        fromControllerInstance.params == params
     }
 
 }

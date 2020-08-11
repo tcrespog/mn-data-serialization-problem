@@ -26,4 +26,7 @@ class MyEntity {
     @Type(type = 'example.util.H8UserOptionsType')
     UserOptions options
 
+    @Type(type = 'example.util.H8MapToJsonType')
+    Map params
+
 }
